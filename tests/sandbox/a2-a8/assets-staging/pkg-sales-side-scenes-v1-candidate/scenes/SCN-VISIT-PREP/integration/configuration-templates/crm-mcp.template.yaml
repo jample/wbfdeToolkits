@@ -1,0 +1,30 @@
+# CRM MCP 合成配置模板（占位变量，非真实配置）
+# 变量含义见 ../mcp-configuration-guide.md §4
+server:
+  base_url: "${crm_mcp_base_url}"      # 客户部署时填写，例：https://crm.example.internal/mcp/v1
+  tenant: "${crm_tenant}"              # 例：tenant-demo
+auth:
+  type: bearer
+  token_env_var: "${crm_token_env_var}"   # 只写环境变量名，例：CRM_MCP_TOKEN；禁止明文凭证
+tools:
+  - name: get_customer_profile
+    intent: "读取客户主档（只读）"
+    input_mapping:
+      customer_id: "${f_customer_id}"      # 业务语义变量，部署时映射真实字段
+  - name: list_recent_followups
+    intent: "读取近期跟进（只读）"
+    input_mapping:
+      customer_id: "${f_customer_id}"
+      lookback_days: "${followup_lookback_days}"
+  - name: write_visit_brief
+    intent: "回写审批后简报"
+    guard: "仅在人工审批通过后调用"
+    input_mapping:
+      customer_id: "${f_customer_id}"
+      brief_payload: "${brief_content}"
+field_semantics:
+  customer_id: "${f_customer_id}"
+  customer_name: "${f_customer_name}"
+  annual_amount: "${f_annual_amount}"
+  last_visit_date: "${f_last_visit_date}"
+timeout_seconds: "${crm_timeout_seconds}"
